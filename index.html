@@ -1,0 +1,499 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Bayesian Classifiers</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/moon.css">
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<style>
+			section.table table tr td {font-size: 28px}
+			section.table-sm table tr td {font-size: 17px}
+			.not-too-small {font-size: 29px !important}
+			section.portraits img {
+				display:inline;
+				height:200px !important;
+				padding: 0 15px
+			}
+			body .block pre { height: 75%px}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>An Intro To Bayesian Classifiers</h1>
+					<h3>Ben Wendt</h3>
+					<aside class=notes>
+						Hi I'm Ben. I'm going to cover:<ul><li> what a Bayesian classifier is
+							<li>What it's good for<li>How it works<li>And how to build one</ul>
+					</aside>
+				</section>
+				<section data-markdown>
+					### Learning With Probability
+				</section>
+				<section>
+					initial knowledge (or even a hunch) + new data makes a more accurate
+					representation
+				</section>
+				<section >
+					<img src="css/bayes.gif">
+				</section>
+				<section>
+					<canvas id="csnv" background="grey" height="600" width="600"></canvas>
+					<button id="throw">throw</button>
+					<button id="throw10">throw 10</button>
+					<button id="throw100">throw 100</button>
+					<button id="throw1000">throw 1000</button>
+					<button id="restart">restart</button>
+					<script>
+						const canvas = document.getElementById('csnv')
+						const ctx = canvas.getContext('2d')
+						const w = canvas.width
+						const h = canvas.height
+						let first = null
+						let toss = null
+						let toTheLeft = 0
+						let above = 0
+						let total = 0
+						let points = []
+						let restart = () => {
+							first = null
+							toss = null
+							toTheLeft = 0
+							above = 0
+							total = 0
+							points = []
+						}
+
+						let randPoint = () => {return {x: Math.random() * w, y: Math.random() * h}}
+
+						let drawPoint = (o, r, color) => {
+							ctx.beginPath()
+							ctx.fillStyle = color
+							ctx.arc(o.x, o.y, r, 0, Math.PI *2, true)
+							ctx.fill()
+							ctx.closePath()
+						}
+
+						let drawVer = (x) => {
+							ctx.beginPath()
+							ctx.moveTo(x, 0)
+							ctx.lineTo(x, h)
+							ctx.stroke()
+							ctx.closePath()
+						}
+
+						let drawHor = (y) => {
+							ctx.beginPath()
+							ctx.moveTo(0, y)
+							ctx.lineTo(w, y)
+							ctx.stroke()
+							ctx.closePath()
+						}
+
+						let drawFirst = () => {
+							drawPoint(first, 10, "yellow")
+						}
+
+						let draw = () => {
+							canvas.width = w
+							for (point of points) {
+								drawPoint(point, 5, "green")
+							}
+							if (total > 0) {
+								ctx.strokeStyle = "white"
+								drawVer(w * toTheLeft / total)
+								drawHor(h * above / total)
+							}
+							drawFirst()
+						}
+
+						let drop = () => {
+							if (first) {
+								let point = randPoint()
+
+								if (point.x < first.x) {
+									toTheLeft++
+								}
+								if (point.y < first.y) {
+									above++
+								}
+								points.push(point)
+								total++
+
+							} else {
+								first = randPoint()
+							}
+						}
+
+						let doNew = () => {
+							drop()
+							draw()
+						}
+
+						let doNewTen = () => {
+							for (let i = 0; i < 10; i++) {
+								drop()
+							}
+							draw()
+						}
+
+						let doNewHundo = () => {
+							for (let i = 0; i < 100; i++) {
+								drop()
+							}
+							draw()
+						}
+
+						let doNewThou = () => {
+							for (let i = 0; i < 1000; i++) {
+								drop()
+							}
+							draw()
+						}
+
+						document.getElementById('restart').addEventListener('click', restart, false)
+						document.getElementById('throw').addEventListener('click', doNew, false)
+						document.getElementById('throw10').addEventListener('click', doNewTen, false)
+						document.getElementById('throw100').addEventListener('click', doNewHundo, false)
+						document.getElementById('throw1000').addEventListener('click', doNewThou, false)
+					</script>
+				</section>
+				<!--
+				<section data-markdown>
+					Say you are looking for `P(T|M)`, the probability of a traffic jam occurring given
+					the fact that it is Monday. For this to work, you need to know:
+
+					* `P(M|T)`: The probability that it's Monday, given that there's a traffic jam.
+					* `P(T)`: The probability of a traffic jam occurring. (This is often called the prior
+					  probability of the event.)
+					* `P(M)`: The probability of it being Monday.
+				</section>
+				<section>
+					Given these data, you can put the numbers into the following equation:
+
+					$$P(T|M) = \frac{P(M|T)P(T)}{P(M)}$$
+				</section>
+				<section data-markdown>
+					Supposing:
+
+					* `P(M|T)`: 7/10
+					* `P(T)`: 2/5
+					* `P(M)`: 1/7
+
+					We get: `P(T|M) = 1/4`
+				</section>
+			-->
+				<section class="portraits">
+					<img src="css/price.jpg"><img src="css/laplace.jpg">
+				</section>
+				<section>
+					<h4>Notation</h4>
+					<ul>
+						<li>\(P(x)\): The probability that an event x will occur
+						<li>\(P(x|y)\): The probability that an event x will occur given that event y has occurred
+						<li>\(P(x\cap{y})\): The probability that event x and event y will both occur
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h3> Derivation </h3>
+						<p>Axiom of Probability</p>
+						$$P(A\cap{B})=P(A|B)P(B)$$
+					</section>
+					<section>
+						<img src="css/venn.png">
+					</section>
+					<section>
+						<h3> Derivation </h3>
+						<p>rearrange</p>
+						$$P(A|B)=\frac{P(A∩B)}{P(B)}$$
+					</section>
+					<section>
+						<h3> Derivation </h3>
+						<p>But we can reverse the terms in the axiom, to get</p>
+						$$P(A∩B)=P(B∩A)=P(B|A)P(A)$$
+					</section>
+					<section>
+						<h3> Derivation </h3>
+						<p>Swap that in, and we get Bayes' Theorem:</p>
+						$$P(A|B)=\frac{P(B|A)P(A)}{P(B)}$$
+					</section>
+					<!--section>
+						<h3> Another Derivation </h3>
+						<p>The ratio of probabilities is proportional to the ratio of the priors:</p>
+						$$\frac{P(A|B)}{P(B|A)}=\frac{P(A)}{P(B)}$$
+					</section-->
+				</section>
+				<section data-markdown>
+					### A Simple Example
+				</section>
+				<section data-markdown="simple_example.md"
+								 data-separator="^\n\n\n"
+								 data-separator-vertical="^\n\n"
+								 data-charset="utf-8">
+				</section>
+				<section>
+					<small>
+					<math>
+						<mi>P(Bag A given a yellow ball being pulled)</mi><mo>=</mo>
+						<mfrac>
+							<mrow>
+								<mi>P(Yellow ball given bag A)</mi> <mi>P(bag A)</mi>
+							</mrow>
+							<mrow>
+								<mi>P(yellow ball)</mi>
+							</mrow>
+						</mfrac>
+					</math>
+				</small>
+				</section>
+				<section>
+
+					$$P(Bag A|yellow) = \frac{(\frac{1}{3})(\frac{1}{2})}{(\frac{3}{6})}
+					                = \frac{1}{3}$$
+
+				</section>
+				<section data-markdown>
+					### A Mind-Bending Example
+				</section>
+				<section>
+					<small>
+					$$
+					P(fortran\enspace developer\enspace given\enspace odd) = \frac{P(odd\enspace given\enspace Fortran\enspace developer)P(fortran developer)}{P(odd)}
+					$$
+</small>
+					Estimates:
+					<ul>
+					<li> \(P(odd\enspace given\enspace fortran\enspace developer)\): Let's say 85% of fortran developers are `odd`.
+					<li> \( P(fortran\enspace developer) \): Most developers are average and use react. Only 1% of
+					  all developers use Fortran.
+					<li> \(P(odd)\): Across the whole company, you estimate that 10% of developers are `odd`.
+					</ul>
+				</section>
+				<section>
+					$$
+					P(fortran|odd) = \frac{(0.85)(0.01)}{0.1}
+					$$
+
+					And the answer is 0.085, or 8.5%.
+
+				</section>
+				<section>
+					<section>
+						<svg id="svg1" height="300" width="300"></svg>
+						<script>
+							const svg = document.getElementById('svg1')
+							const NS = 'http://www.w3.org/2000/svg'
+							const r = 3
+							for (var i = 0; i < 990; i++) {
+								const circle = document.createElementNS(NS, "circle");
+								const color = i < 10 ? "rgb(240, 128, 128)" : "rgb(128, 128, 128)"
+								circle.setAttribute("cx", r + (i % 33) * (2 * r + 2))
+								circle.setAttribute("cy", r + Math.floor(i / 33) * (2 * r + 2))
+								circle.setAttribute("r", r)
+								circle.setAttribute("fill", color)
+								svg.appendChild(circle)
+							}
+						</script>
+					</section>
+					<section>
+						<svg id="svg2" height="300" width="300"></svg>
+						<script>
+							const svg2 = document.getElementById('svg2')
+
+							for (var i = 0; i < 990; i++) {
+								const circle = document.createElementNS(NS, "circle");
+								let color;
+								if (i < 9) {
+									color = "rgb(40, 40, 240)"
+								} else if (i == 9) {
+									color = "rgb(240, 128, 128)"
+								} else {
+									color = "rgb(128, 128, 128)"
+								}
+
+								circle.setAttribute("cx", r + (i % 33) * (2 * r + 2))
+								circle.setAttribute("cy", r + Math.floor(i / 33) * (2 * r + 2))
+								circle.setAttribute("r", r)
+								circle.setAttribute("fill", color)
+								svg2.appendChild(circle)
+							}
+						</script>
+					</section>
+					<section>
+						<svg id="svg3" height="300" width="300"></svg>
+						<script>
+							(function(){
+							const svg3 = document.getElementById('svg3')
+
+							for (var i = 0; i < 990; i++) {
+								const circle = document.createElementNS(NS, "circle");
+								let color;
+								if (i < 9 || Math.random() < 0.13) {
+									color = "rgb(40, 40, 240)"
+								} else if (i == 9) {
+									color = "rgb(240, 128, 128)"
+								} else {
+									color = "rgb(128, 128, 128)"
+								}
+
+								circle.setAttribute("cx", r + (i % 33) * (2 * r + 2))
+								circle.setAttribute("cy", r + Math.floor(i / 33) * (2 * r + 2))
+								circle.setAttribute("r", r)
+								circle.setAttribute("fill", color)
+								svg3.appendChild(circle)
+
+							}
+							})()
+						</script>
+					</section>
+				</section>
+				<section><h3>Learning With Bayes</h3></section>
+				<section data-markdown="news-1.md" class="table"></section>
+				<section data-markdown="news-2.md" class="table-sm"></section>
+				<section data-markdown="news-3.md" class="table"></section>
+				<section>
+					<section>
+						<h3> New document titled "team wins"</h2>
+						<span class="not-too-small">
+							$$P(sports|win∩team) = \frac{P(win|sports∩team)P(team|sports)P(sports)}{P(win∩team)P(team)}$$
+						</span>
+					</section>
+					<section>
+						<h3> New document titled "team wins"</h2>
+						<span class="not-too-small">
+							$$P(sports|win∩team) = \frac{P(win|sports∩team)P(team|sports)P(sports)}{P(win∩team)P(team)}$$
+						</span>
+						<p>this is too complicated already and we only have two terms.</p>
+					</section>
+					<section>
+						<p>But
+							we can simplify drastically by using a naive model.</p>
+						<p>
+							Here naivety means assuming that the events are independent. That means
+							that 'team' and 'win' are independent. Obviously not true, but mostly
+							true.
+						</p>
+					</section>
+				</section>
+				<section>
+					<img src="naive.png">
+					<p>Naive Model</p>
+				</section>
+				<section>
+					<img src="reality.png">
+					<p>Reality</p>
+				</section>
+				<section>
+					<h5>Assume independence</h5>
+					$$P(sports|win∩team) = \frac{P(win|sports)P(team|sports)P(sports)}{P(win)P(team)}$$
+				</section>
+				<section>
+					<section>
+						<h5>in general</h5>
+						$$P(sports|words) = \frac{(product\enspace of\enspace each\enspace P(word|sports)) P(sports)}{(product\enspace of\enspace each\enspace P(word))}$$
+					</section>
+					<section>
+						<h5>or in mathy notation...</h5>
+						$$P(sports|words) = \frac{(∏P(word|sports)) P(sports)}{(∏P(word))}$$
+					</section>
+				</section>
+				<section data-markdown>
+					#### pseudocode
+
+					We will need to iterate over learned classifications and multiply
+					together the probabilities of each feature given that category, times
+					the category.
+				</section>
+				<section data-markdown>
+					#### pseudocode
+
+					We will take the logarithm of each learned probability and add them.
+				</section>
+				<section data-markdown>
+					#### pseudocode
+
+					Because we're looking for a maximum value across classifications,
+					not a probability, we will not bother to divide by the numerator
+					because it's constant.
+				</section>
+				<section data-markdown class="block">
+					```
+					classify classes = [], document:
+					  max_class, max_score = null, 0
+					  for (class : classes) {
+					    score = get_score(class, d)
+					    if score > max_score
+					      max_class = class
+					      max_score = score
+					  }
+					  return max_class;
+
+					get_score class, document:
+					  score = log(get_prior(class))
+					  features = tokenize(doc)
+					  for(feature : features) {
+					    score += log(getProbability(feature, class))
+					  }
+					  return score;
+					```
+
+				</section>
+				<section data-markdown>
+					### training
+
+					```
+					train class, features:
+						incrementTotal
+					  increment_class(class)
+					  for (feature : features) {
+					    increment_feature(feature, class)
+					  }
+					```
+				</section>
+				<section data-markdown>
+					## demo
+				</section>
+				<section>
+					<iframe src=2.html style="width:600px;height:600px"></iframe>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'socket.io/socket.io.js', async: true },
+					{ src: 'plugin/notes-server/client.js', async: true },
+
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

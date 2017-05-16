@@ -1,0 +1,117 @@
+<script src="matter.js"></script>
+<div id="box">
+  <span class="move-word" id="the">the</span>
+  <span class="move-word" id="end">end</span>
+</div>
+<style>
+  #box {position: relative}
+  .move-word {
+    position: absolute;
+    color: white;
+    font-family: arial;
+    font-size: 34px
+  }
+</style>
+<script>
+// module aliases
+var Engine = Matter.Engine,
+    Render = Matter.Render,
+    Constraint = Matter.Constraint
+    World = Matter.World,
+    Bodies = Matter.Bodies;
+
+// create an engine
+var engine = Engine.create();
+
+// create a renderer
+var render = Render.create({
+    element: document.getElementById('box'),
+    engine: engine
+});
+
+var boxA = Bodies.rectangle(250, 200, 90, 60);
+var boxB = Bodies.rectangle(300, 150, 80, 60);
+
+let the = document.getElementById('the')
+let end = document.getElementById('end')
+let style = document.createElement('style')
+document.body.appendChild(style)
+
+let containerSides = 10
+var container = []
+let constraints = []
+
+let beam = 40
+let θdiff = -1.1
+
+for (let i = 0; i < containerSides; i++) {
+  container[i] = Bodies.rectangle(
+    300 + 200 * Math.sin(2 * i * Math.PI / containerSides),
+    300 + 200 * Math.cos(2 * i * Math.PI / containerSides),
+    100, 40
+  )
+  Matter.Body.setAngle(container[i], -2 * i * Math.PI / containerSides)
+
+  constraints.push(
+    Constraint.create({
+      pointA: { x: 300, y: 300 },
+      bodyB: container[i],
+      pointB: {
+        x: beam * Math.sin(θdiff + 2 * i * Math.PI / containerSides),
+        y: beam * Math.cos(θdiff + 2 * i * Math.PI / containerSides)
+      }
+    })
+  )
+  constraints.push(
+    Constraint.create({
+      pointA: { x: 300, y: 300 },
+      bodyB: container[i],
+      pointB: {
+        x: beam * Math.sin(-θdiff + 2 * i * Math.PI / containerSides),
+        y: beam * Math.cos(-θdiff + 2 * i * Math.PI / containerSides)
+      }
+    })
+  )
+
+}
+
+for (let i = 0; i < containerSides; i++) {
+  constraints.push(
+    Constraint.create({
+      bodyA: container[i],
+
+      bodyB: container[(i+1)%containerSides]
+    })
+  )
+}
+
+// add all of the bodies to the world
+World.add(engine.world, [
+    boxA, boxB].concat(container).concat(constraints)
+  )
+
+// run the engine
+Engine.run(engine);
+
+// run the renderer
+Render.run(render);
+
+var theta = 0
+var dtheta = 0.01
+var r = 300;
+
+(function run() {
+  theta += dtheta
+
+  window.requestAnimationFrame(run);
+
+  the.style.left = (boxA.position.x - 25) + 'px'
+  the.style.top = (boxA.position.y - 15) + 'px'
+  the.style.transform = `rotate(${boxA.angle * 180 / Math.PI}deg)`
+
+  end.style.left = (boxB.position.x - 25) + 'px'
+  end.style.top = (boxB.position.y - 15) + 'px'
+  end.style.transform = `rotate(${boxB.angle * 180 / Math.PI}deg)`
+
+})();
+</script>

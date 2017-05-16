@@ -1,0 +1,177 @@
+1.
+
+Hi I'm Ben Wndt
+
+Today we're going to talk about:
+what a Bayesian Classifier is
+Go Over Bayes' Theorem, which is what makes it work
+Explain the algorithm
+Then dive into some code
+
+2.
+
+In Machine Learning you generally use statistics to make
+predictions based on your data Set
+
+In a Bayesian Classifier, we use what is essentially some
+high-school level probability to
+extrapolate from our data to make predictions.
+
+Bayesian probability is the branch of statistics that deals
+with using your past experience
+to make a prediction of future events
+
+3. just read the slide
+
+4. Say Bayes invented the technique in broad terms, then threw
+it in a drawer and forgot about it
+
+Mention the table, then change slides.
+
+5. Table demo
+
+Here we have a yellow ball thrown on the table. But we don't know where it is. All we can do is
+throw more balls on the table and ask an assistant whether the new ball is above or below, right or left
+
+let's take a looking
+
+6. Richard Price - protege of Bayes, formalized the theorem after Bayes' death. Still didn't really
+catch on.
+
+Pierre Laplace (The Man Who Did Everything, or The French Newton). Put the theory on a solid mathematical
+ground and employed it throughout his career.
+
+7. Notation slide, basically have to read this off.
+
+8. derivation 1.
+
+An axiom in mathematics is like an atom of thought. It's a definition so basic that you can't
+easily make further definitions that aren't cyclical. It might seem like cheating to
+pull an equation out of thin air, but it's actually necessary. Sometimes there are competing
+axioms that lead to different but equally useful models.
+
+This axiom makes sense intuitively if we think of it this way: For both A and B to happen,
+first A has to happen, and then B can happen, or vise versa.
+
+9. You can't have a talk about probability without bad Venn diagrams.
+
+In this Venn diagram we see the intersection a∩b. If A happens, b had to happen too.
+
+10. so we divide through the axiom by the probability of b.
+
+11. If we look at the axiom, we can reverse our terms and it's still equal to the same.
+
+12. Swap that in for the old numerator (maybe quickly slide back) and we get Bayes Theorem.
+
+And read off the terms.
+
+13. So let's do a simple example of Bayes Theorem so we can see how it works.
+
+14. You can't do a talk about probability without a terrible drawing of balls in
+bags.
+
+In our example we have two bags. One with two red and one yellow ball, one with two
+yellow and one red ball.
+
+Suppose we pull a yellow ball out of one bag. What's the probability we got bag A?
+
+This could be useful because this will inform the probability of future draws.
+
+15. Read off the equation. And stress what each term means. Note That this is basically a
+classification problem.
+
+16.
+SO the probability of a yellow ball given bag is 1/3.
+Probability of bag A is 1/2
+And probability of a yellow ball is 3/6.
+And the answer is 1/3.
+
+17. Bayes is often used to illustrate the counter-intuitive nature of guesses
+and pre-conceptions. So let's do one of those.
+
+Now say you work at a big software company with about a thousand employees.
+
+You see someone walk out of a boardroom and think to yourself "hey that person seems odd"
+
+Your preconception is that most fortran developers are odd, so you think "maybe that is a
+fortran developer". Let's take a look and see whether that is likely.
+
+18. Walk through the example and give estimate numbers for everything.
+
+19. Blows people's minds and permanently erase prejudice from the face of the earth.
+
+20, 21, 22. The svg slides. Know what to say here.
+
+23. So that's a quick and dirty intro to basic use of Bayes' Theorem.
+But as developers we can apply this to very quickly make pretty good
+classifications on data given a trained
+set of probabilities. Let's take a look at what that might look like.
+
+24. Say you run a news aggregator. You get jillions of articles and you want to assign
+the ones that don't have a "newspaper section" a category.
+
+But you do have thousands if not millions of classified records. How would we classify
+records based on their headlines?
+
+Show the table and describe how each headline maps to a known section.
+
+25. Let's break up the example data by word in the title and count up occurrences
+cross-tabulated to the section.
+
+Show the table and describe what it means
+
+26. Now imagine we ran through our septillion documents, we'd get something similar, for example like this
+
+This is our table of prior probabilities. We should be able to use Bayes theorem with this table
+to predict things.
+
+27. So what happens if a new document comes in titled "team wins" (our intuition tells us that this
+should be a sports document, but what does Bayes Theorem tell us?)
+
+28. Now I had to look up this formula. It's actually pretty complicated
+and there are things in here that we didn't track in our priors table.
+Not to say that's impossible, but we didn't do it. For only
+two terms, this is already getting out of hand. Now is a good time to
+make a simplification.
+
+29. Naivety. This slide I can basically read off.
+
+30. Naivety diagram: Imagine we have a dictionary with only four words If each of these boxes is a
+title. Then these images would show what two documents with independent words in the titles would look
+like.
+
+31. But in reality there is dependence between words. You would expect certain words to exist together
+more often than others. E.g. Intel would go with pentium more often than brioche.
+
+32. But anyways, we assume independence in naive Bayes. That's what makes it naive. It's not a perfect
+model, but it does quite well. Here we see what the equation is for calculating the naive bayes
+probability for our new document.
+
+33. And here's the general case. We'll take the product of all given priors times to probability of
+the class, divide by the product of the priors for each feature.
+
+34. And here that is in more mathematical notation using capital pi. Can't have a presentation
+about probability without a capital sigma or capital pi at some point. To me this really
+motivates a for-loop or reduce operation, so that's cool.
+
+35. So let's talk about the psuedo code before we actually do an implementation of this stuff.
+As mentioned, we're going to be multiplying a bunch of pre-calculated probabilities together.
+
+36. Instead of doing multiplication of the probabilities we are going to take the logarithm
+of each and add them up. Note at this point, we aren't actually calculating the bayesian
+prob for each class, we just want to see which class gets the highest score.
+
+Second we do addition rather than mult because if we multiply too many tiny numbers together
+we will get an float underflow and our results will lose meaning.
+
+37. And we won't divide by the product of all the terms because that is the same for each class.
+
+It is work we don't need to do, se we don't do it.
+
+38. Describe the psuedo code.
+
+39. Describe the training pseudo code.
+
+40. Demo the real code that works.
+
+41. The end.

@@ -1,0 +1,7 @@
+Success (exact match): 0.30511100517570144 (17921 / 58736)
+(threshold 0.0001)
+Success + within rounding: 0.9036706619449741 (53078 / 58736)
+
+"a deal asset share changed"=>3905
+"Probable rounding issue"=>35157
+"Statement line amounts do not match"=>1753
