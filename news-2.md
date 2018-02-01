@@ -1,22 +1,22 @@
 | word    | P(sports) | P(entertainment) | P(science) |
 |---------|-----------|------------------|-------------
-| Local   | 1 / 1     | 0                | 0          |
-| Team    | 2 / 2     | 0                | 0          |
-| Loses   | 2 / 2     | 0                | 0          |
-| Game    | 2 / 2     | 0                | 0          |
-| Player  | 1 / 1     | 0                | 0          |
-| Movie   | 0         | 2 / 3            | 1 / 3      |
+| local   | 1 / 1     | 0                | 0          |
+| team    | 2 / 2     | 0                | 0          |
+| loses   | 2 / 2     | 0                | 0          |
+| game    | 2 / 2     | 0                | 0          |
+| player  | 1 / 1     | 0                | 0          |
+| movie   | 0         | 2 / 3            | 1 / 3      |
 | breaks  | 0         | 1 / 1            | 0          |
 | box     | 0         | 1 / 1            | 0          |
 | office  | 0         | 1 / 1            | 0          |
 | record  | 0         | 1 / 2            | 1 / 2      |
-| English | 1 / 1     | 0                | 0          |
-| Scores  | 1 / 1     | 0                | 0          |
-| Goal    | 1 / 1     | 0                | 0          |
-| Gravity | 0         | 0                | 1 / 1      |
-| Waves   | 0         | 0                | 1 / 1      |
-| Using   | 0         | 0                | 1 / 1      |
-| Machine | 0         | 0                | 1 / 1      |
-| New     | 0         | 1 / 2            | 1 / 2      |
-| Comedy  | 0         | 1 / 1            | 0          |
-| Good    | 0         | 1 / 1            | 0          |
+| english | 1 / 1     | 0                | 0          |
+| scores  | 1 / 1     | 0                | 0          |
+| goal    | 1 / 1     | 0                | 0          |
+| gravity | 0         | 0                | 1 / 1      |
+| waves   | 0         | 0                | 1 / 1      |
+| using   | 0         | 0                | 1 / 1      |
+| machine | 0         | 0                | 1 / 1      |
+| new     | 0         | 1 / 2            | 1 / 2      |
+| comedy  | 0         | 1 / 1            | 0          |
+| good    | 0         | 1 / 1            | 0          |

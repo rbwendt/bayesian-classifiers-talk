@@ -8,7 +8,7 @@
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/moon.css">
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML'></script>
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
 
@@ -30,6 +30,7 @@
 				padding: 0 15px
 			}
 			body .block pre { height: 75%px}
+			#csnv {border: 1px solid white}
 		</style>
 	</head>
 	<body>
@@ -55,152 +56,25 @@
 				</section>
 				<section>
 					<canvas id="csnv" background="grey" height="600" width="600"></canvas>
-					<button id="throw">throw</button>
-					<button id="throw10">throw 10</button>
-					<button id="throw100">throw 100</button>
-					<button id="throw1000">throw 1000</button>
-					<button id="restart">restart</button>
-					<script>
-						const canvas = document.getElementById('csnv')
-						const ctx = canvas.getContext('2d')
-						const w = canvas.width
-						const h = canvas.height
-						let first = null
-						let toss = null
-						let toTheLeft = 0
-						let above = 0
-						let total = 0
-						let points = []
-						let restart = () => {
-							first = null
-							toss = null
-							toTheLeft = 0
-							above = 0
-							total = 0
-							points = []
-						}
-
-						let randPoint = () => {return {x: Math.random() * w, y: Math.random() * h}}
-
-						let drawPoint = (o, r, color) => {
-							ctx.beginPath()
-							ctx.fillStyle = color
-							ctx.arc(o.x, o.y, r, 0, Math.PI *2, true)
-							ctx.fill()
-							ctx.closePath()
-						}
-
-						let drawVer = (x) => {
-							ctx.beginPath()
-							ctx.moveTo(x, 0)
-							ctx.lineTo(x, h)
-							ctx.stroke()
-							ctx.closePath()
-						}
-
-						let drawHor = (y) => {
-							ctx.beginPath()
-							ctx.moveTo(0, y)
-							ctx.lineTo(w, y)
-							ctx.stroke()
-							ctx.closePath()
-						}
-
-						let drawFirst = () => {
-							drawPoint(first, 10, "yellow")
-						}
-
-						let draw = () => {
-							canvas.width = w
-							for (point of points) {
-								drawPoint(point, 5, "green")
-							}
-							if (total > 0) {
-								ctx.strokeStyle = "white"
-								drawVer(w * toTheLeft / total)
-								drawHor(h * above / total)
-							}
-							drawFirst()
-						}
-
-						let drop = () => {
-							if (first) {
-								let point = randPoint()
-
-								if (point.x < first.x) {
-									toTheLeft++
-								}
-								if (point.y < first.y) {
-									above++
-								}
-								points.push(point)
-								total++
-
-							} else {
-								first = randPoint()
-							}
-						}
-
-						let doNew = () => {
-							drop()
-							draw()
-						}
-
-						let doNewTen = () => {
-							for (let i = 0; i < 10; i++) {
-								drop()
-							}
-							draw()
-						}
-
-						let doNewHundo = () => {
-							for (let i = 0; i < 100; i++) {
-								drop()
-							}
-							draw()
-						}
-
-						let doNewThou = () => {
-							for (let i = 0; i < 1000; i++) {
-								drop()
-							}
-							draw()
-						}
-
-						document.getElementById('restart').addEventListener('click', restart, false)
-						document.getElementById('throw').addEventListener('click', doNew, false)
-						document.getElementById('throw10').addEventListener('click', doNewTen, false)
-						document.getElementById('throw100').addEventListener('click', doNewHundo, false)
-						document.getElementById('throw1000').addEventListener('click', doNewThou, false)
+					<div style="margin-bottom:40px">
+						<button id="throw">throw</button>
+						<button id="throw10">throw 10</button>
+						<button id="throw100">throw 100</button>
+						<button id="throw1000">throw 1000</button>
+						<button id="throw10000">throw 10000</button>
+						<button id="restart">restart</button>
+					</div>
+					<script src="throws.js">
 					</script>
 				</section>
-				<!--
-				<section data-markdown>
-					Say you are looking for `P(T|M)`, the probability of a traffic jam occurring given
-					the fact that it is Monday. For this to work, you need to know:
-
-					* `P(M|T)`: The probability that it's Monday, given that there's a traffic jam.
-					* `P(T)`: The probability of a traffic jam occurring. (This is often called the prior
-					  probability of the event.)
-					* `P(M)`: The probability of it being Monday.
+				<section class="portraits">
+					<table><tr>
+						<td>
+					<img src="css/price.jpg"></td><td><img src="css/laplace.jpg"></td>
+				</tr><tr><td>Richard Price</td><td>Pierre-Simon Laplace</td></tr></table>
 				</section>
 				<section>
-					Given these data, you can put the numbers into the following equation:
-
-					$$P(T|M) = \frac{P(M|T)P(T)}{P(M)}$$
-				</section>
-				<section data-markdown>
-					Supposing:
-
-					* `P(M|T)`: 7/10
-					* `P(T)`: 2/5
-					* `P(M)`: 1/7
-
-					We get: `P(T|M) = 1/4`
-				</section>
-			-->
-				<section class="portraits">
-					<img src="css/price.jpg"><img src="css/laplace.jpg">
+					<img src="bookcover.png" style="width:40%">
 				</section>
 				<section>
 					<h4>Notation</h4>
@@ -234,19 +108,49 @@
 						<p>Swap that in, and we get Bayes' Theorem:</p>
 						$$P(A|B)=\frac{P(B|A)P(A)}{P(B)}$$
 					</section>
-					<!--section>
+					<section>
 						<h3> Another Derivation </h3>
 						<p>The ratio of probabilities is proportional to the ratio of the priors:</p>
 						$$\frac{P(A|B)}{P(B|A)}=\frac{P(A)}{P(B)}$$
-					</section-->
+					</section>
+					<!--
+					<section data-markdown>
+						Say you are looking for `P(T|M)`, the probability of a traffic jam occurring given
+						the fact that it is Monday. For this to work, you need to know:
+
+						* `P(M|T)`: The probability that it's Monday, given that there's a traffic jam.
+						* `P(T)`: The probability of a traffic jam occurring. (This is often called the prior
+						probability of the event.)
+						* `P(M)`: The probability of it being Monday.
+					</section>
+					<section>
+						Given these data, you can put the numbers into the following equation:
+
+						$$P(T|M) = \frac{P(M|T)P(T)}{P(M)}$$
+					</section>
+					<section data-markdown>
+						Supposing:
+
+						* `P(M|T)`: 7/10
+						* `P(T)`: 2/5
+						* `P(M)`: 1/7
+
+						We get: `P(T|M) = 1/4`
+					</section>
+				-->
+					
 				</section>
 				<section data-markdown>
 					### A Simple Example
 				</section>
-				<section data-markdown="simple_example.md"
-								 data-separator="^\n\n\n"
-								 data-separator-vertical="^\n\n"
-								 data-charset="utf-8">
+				<section >
+					<p>
+						You have two bags containing marbles. Bag A contains
+						2 red and 1 yellow ball. Bag B contains 1 red and
+						two yellow balls.
+					</p>
+						<img src="jar.svg" width="500" style="background: #93a1a1">
+						
 				</section>
 				<section>
 					<small>
@@ -276,8 +180,7 @@
 					<small>
 					$$
 					P(fortran\enspace developer\enspace given\enspace odd) = \frac{P(odd\enspace given\enspace Fortran\enspace developer)P(fortran developer)}{P(odd)}
-					$$
-</small>
+					$$</small>
 					Estimates:
 					<ul>
 					<li> \(P(odd\enspace given\enspace fortran\enspace developer)\): Let's say 85% of fortran developers are `odd`.
@@ -296,11 +199,11 @@
 				</section>
 				<section>
 					<section>
-						<svg id="svg1" height="300" width="300"></svg>
+						<svg id="svg1" height="400" width="400"></svg>
 						<script>
 							const svg = document.getElementById('svg1')
 							const NS = 'http://www.w3.org/2000/svg'
-							const r = 3
+							const r = 200 / 33 - 1
 							for (var i = 0; i < 990; i++) {
 								const circle = document.createElementNS(NS, "circle");
 								const color = i < 10 ? "rgb(240, 128, 128)" : "rgb(128, 128, 128)"
@@ -313,7 +216,7 @@
 						</script>
 					</section>
 					<section>
-						<svg id="svg2" height="300" width="300"></svg>
+						<svg id="svg2" height="400" width="400"></svg>
 						<script>
 							const svg2 = document.getElementById('svg2')
 
@@ -337,7 +240,8 @@
 						</script>
 					</section>
 					<section>
-						<svg id="svg3" height="300" width="300"></svg>
+						
+						<svg id="svg3" height="400" width="400"></svg>
 						<script>
 							(function(){
 							const svg3 = document.getElementById('svg3')
@@ -362,6 +266,17 @@
 							}
 							})()
 						</script>
+						
+						<div class="fragment" id="bens-element">
+
+							test
+							<script>
+							console.log('Ben element')
+							Reveal.addEventListener( 'fragmentshown', function( event ) {
+								console.log(event.fragment)
+							} )
+							</script>
+						</div>
 					</section>
 				</section>
 				<section><h3>Learning With Bayes</h3></section>
@@ -387,8 +302,8 @@
 							we can simplify drastically by using a naive model.</p>
 						<p>
 							Here naivety means assuming that the events are independent. That means
-							that 'team' and 'win' are independent. Obviously not true, but mostly
-							true.
+							that 'team' and 'win' are independent. Obviously not true, but
+							true enough.
 						</p>
 					</section>
 				</section>
@@ -410,8 +325,8 @@
 						$$P(sports|words) = \frac{(product\enspace of\enspace each\enspace P(word|sports)) P(sports)}{(product\enspace of\enspace each\enspace P(word))}$$
 					</section>
 					<section>
-						<h5>or in mathy notation...</h5>
-						$$P(sports|words) = \frac{(∏P(word|sports)) P(sports)}{(∏P(word))}$$
+						<h5>or in math notation...</h5>
+						$$P(sports|words) = \frac{(\prod P(word|label)) P(label)}{(\prod P(word))}$$
 					</section>
 				</section>
 				<section data-markdown>
@@ -468,11 +383,13 @@
 					```
 				</section>
 				<section data-markdown>
-					## demo
+						## demo
 				</section>
-				<section>
+				<section data-markdown>
+				</section>
+							<!--section>
 					<iframe src=2.html style="width:600px;height:600px"></iframe>
-				</section>
+				</section-->
 			</div>
 		</div>
 

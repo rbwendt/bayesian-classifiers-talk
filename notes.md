@@ -45,7 +45,7 @@ the terms in the axiom to get `P(A given B) = P(B given A)P(B)/P(A)`.
 Suppose you have two bags containing marbles. Bag A contains
 2 red balls and 1 yellow ball. Bag B contains 1 red ball and two yellow balls.
 
-# insert terrible picture here
+!(urns.png)[urns]
 
 You don't know which bag is which.
 
@@ -214,7 +214,7 @@ This is already complex for only two terms, but let's look at a simpler way to l
 at this. We can assume independence of the terms. This may not be the most accurate
 model but it will give us results that we can work with and evaluate.
 This assumption that the terms are independent makes calculation simple, but
-it's also not entirely accurate, hence why this technique is called 'naive'.
+it's also not entirely accurate, hence why this technique is called 'naive'. This is the 'bag of words' technique commonly used in NLP.
 For example, headlines that contain 'delicious' would tend to occur more often
 with 'cake' than 'manure', meaning 'delicious' and 'cake' have a dependence.
 Naive Bayes' classifiers can compete very well against other classifiers in terms
@@ -301,6 +301,87 @@ train class, features:
 
 The training will keep track of the occurrence of the different class and the
 occurrence of different features within each class.
+
+Here is a working example in old-fashioned javascript that does
+the same thing:
+
+```
+
+function Bayes() {
+  this.features = {}
+  this.categories = {}
+}
+
+Bayes.prototype.getScore = function(category, features) {
+  score = Math.log(this.getPrior(category))
+
+  for(var feature of features) {
+    score += Math.log(this.getProbability(feature, category))
+  }
+
+  return score
+}
+
+Bayes.prototype.getPrior = function(category) {
+  return (this.categories[category] || 0.1) / this.totalDocuments
+}
+
+Bayes.prototype.getProbability = function(feature, category) {
+  return (this.features[category][feature] || 0.1) / this.categories[category]
+}
+
+Bayes.prototype.classify = function(features) {
+  let maxClass = null
+  let maxScore = -Infinity
+  for (var category in this.categories) {
+    const score = this.getScore(category, features)
+    if (score > maxScore) {
+      maxClass = category
+      maxScore = score
+    }
+  }
+  return maxClass
+}
+
+Bayes.prototype.incrementTotal = function(category) {
+  this.totalDocuments = (this.totalDocuments || 0) + 1
+}
+
+Bayes.prototype.incrementCategory = function(category) {
+  this.categories[category] = (this.categories[category] || 0) + 1
+}
+
+Bayes.prototype.incrementFeature = function(feature, category) {
+  if (!this.features[category]) {
+    this.features[category] = {}
+  }
+  this.features[category][feature] = (this.features[category][feature] || 0) + 1
+}
+
+Bayes.prototype.train = function(category, features) {
+  this.incrementTotal()
+  this.incrementCategory(category)
+  for (var feature of features) {
+    this.incrementFeature(feature, category)
+  }
+}
+
+b = new Bayes()
+
+b.train('city', ['subway', 'tower', 'hotel'])
+b.train('city', ['opera', 'tower', 'hotel'])
+b.train('city', ['opera', 'subway', 'hotel'])
+
+b.train('country', ['cow', 'field', 'hill'])
+b.train('country', ['cow', 'field', 'farm'])
+
+// city
+console.log(b.classify(['subway', 'hill', 'tower']))
+
+// country
+console.log(b.classify(['farm', 'hill', 'sheep']))
+
+```
 
 And that is it. We've successfully used Bayes' Theorem to classify documents.
 
