@@ -26,18 +26,20 @@
 			.not-too-small {font-size: 29px !important}
 			section.portraits img {
 				display:inline;
-				height:200px !important;
+				height:300px !important;
 				padding: 0 15px
 			}
 			body .block pre { height: 75%px}
 			#csnv {border: 1px solid white}
+			.tp {color: green}
+			.fp {color: red}
 		</style>
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
 				<section>
-					<h2>An Intro To Bayesian Classifiers</h1>
+					<h2>Naive Bayes Document Classification</h1>
 					<h3>Ben Wendt</h3>
 					<aside class=notes>
 						Hi I'm Ben. I'm going to cover:<ul><li> what a Bayesian classifier is
@@ -46,10 +48,17 @@
 				</section>
 				<section data-markdown>
 					### Learning With Probability
-				</section>
-				<section>
+
 					initial knowledge (or even a hunch) + new data makes a more accurate
 					representation
+				</section>
+				<section>
+					<h3>Are tacos for dinner?</h3>
+					<ul>
+						<li class="fragment">likelihood of tacos?</li>
+						<li class="fragment">likelihood that it is dinner?</li>
+						<li class="fragment">is it tuesday? 🌮</li>
+					</ul>
 				</section>
 				<section >
 					<img src="css/bayes.gif">
@@ -57,6 +66,8 @@
 				<section>
 					<canvas id="csnv" background="grey" height="600" width="600"></canvas>
 					<div style="margin-bottom:40px">
+						throws:
+						<span id="num-throws">0</span>
 						<button id="throw">throw</button>
 						<button id="throw10">throw 10</button>
 						<button id="throw100">throw 100</button>
@@ -67,11 +78,17 @@
 					<script src="throws.js">
 					</script>
 				</section>
-				<section class="portraits">
-					<table><tr>
-						<td>
-					<img src="css/price.jpg"></td><td><img src="css/laplace.jpg"></td>
-				</tr><tr><td>Richard Price</td><td>Pierre-Simon Laplace</td></tr></table>
+				<section>
+					<div>
+						<img src="css/price.jpg">
+					</div>
+					Richard Price
+				</section>
+				<section>
+					<div>
+						<img src="css/laplace.jpg">
+					</div>
+					Pierre-Simon Laplace
 				</section>
 				<section>
 					<img src="bookcover.png" style="width:40%">
@@ -95,50 +112,29 @@
 					</section>
 					<section>
 						<h3> Derivation </h3>
-						<p>rearrange</p>
+						<p>Rearrange:</p>
 						$$P(A|B)=\frac{P(A∩B)}{P(B)}$$
-					</section>
-					<section>
-						<h3> Derivation </h3>
-						<p>But we can reverse the terms in the axiom, to get</p>
+					
+						<div class="fragment">
+						<p>Reverse the terms in the axiom to get</p>
 						$$P(A∩B)=P(B∩A)=P(B|A)P(A)$$
-					</section>
-					<section>
-						<h3> Derivation </h3>
-						<p>Swap that in, and we get Bayes' Theorem:</p>
+						</div>
+					<div class="fragment">
+
+						<p>Swap that in and we get Bayes' Theorem:</p>
 						$$P(A|B)=\frac{P(B|A)P(A)}{P(B)}$$
+					</div>
 					</section>
 					<section>
 						<h3> Another Derivation </h3>
 						<p>The ratio of probabilities is proportional to the ratio of the priors:</p>
 						$$\frac{P(A|B)}{P(B|A)}=\frac{P(A)}{P(B)}$$
-					</section>
-					<!--
-					<section data-markdown>
-						Say you are looking for `P(T|M)`, the probability of a traffic jam occurring given
-						the fact that it is Monday. For this to work, you need to know:
+						<div class="fragment">
 
-						* `P(M|T)`: The probability that it's Monday, given that there's a traffic jam.
-						* `P(T)`: The probability of a traffic jam occurring. (This is often called the prior
-						probability of the event.)
-						* `P(M)`: The probability of it being Monday.
-					</section>
-					<section>
-						Given these data, you can put the numbers into the following equation:
-
-						$$P(T|M) = \frac{P(M|T)P(T)}{P(M)}$$
-					</section>
-					<section data-markdown>
-						Supposing:
-
-						* `P(M|T)`: 7/10
-						* `P(T)`: 2/5
-						* `P(M)`: 1/7
-
-						We get: `P(T|M) = 1/4`
-					</section>
-				-->
-					
+								<p>And rearrange:</p>
+								$$P(A|B)=\frac{P(B|A)P(A)}{P(B)}$$
+							</div>
+							</section>
 				</section>
 				<section data-markdown>
 					### A Simple Example
@@ -166,6 +162,23 @@
 						</mfrac>
 					</math>
 				</small>
+				<div class="fragment">
+					<p>Or...</p>
+						<small>
+								<math>
+									<mi>P(bag given evidence)</mi><mo>=</mo>
+									<mfrac>
+										<mrow>
+											<mi>P(evidence given bag)</mi> <mi>P(bag)</mi>
+										</mrow>
+										<mrow>
+											<mi>P(evidence)</mi>
+										</mrow>
+									</mfrac>
+								</math>
+							</small>
+								
+				</div>
 				</section>
 				<section>
 
@@ -173,18 +186,45 @@
 					                = \frac{1}{3}$$
 
 				</section>
+					<!--
+					<section data-markdown>
+						Say you are looking for `P(T|M)`, the probability of a traffic jam occurring given
+						the fact that it is Monday. For this to work, you need to know:
+
+						* `P(M|T)`: The probability that it's Monday, given that there's a traffic jam.
+						* `P(T)`: The probability of a traffic jam occurring. (This is often called the prior
+						probability of the event.)
+						* `P(M)`: The probability of it being Monday.
+					</section>
+					<section>
+						Given these data, you can put the numbers into the following equation:
+
+						$$P(T|M) = \frac{P(M|T)P(T)}{P(M)}$$
+					</section>
+					<section data-markdown>
+						Supposing:
+
+						* `P(M|T)`: 7/10
+						* `P(T)`: 2/5
+						* `P(M)`: 1/7
+
+						We get: `P(T|M) = 1/4`
+					</section>
+				-->
+
+
 				<section data-markdown>
 					### A Mind-Bending Example
 				</section>
 				<section>
 					<small>
 					$$
-					P(fortran\enspace developer\enspace given\enspace odd) = \frac{P(odd\enspace given\enspace Fortran\enspace developer)P(fortran developer)}{P(odd)}
+					P(fortran\, developer\, given\, odd) = \frac{P(odd\, given\, Fortran\, developer)P(fortran\, developer)}{P(odd)}
 					$$</small>
 					Estimates:
 					<ul>
-					<li> \(P(odd\enspace given\enspace fortran\enspace developer)\): Let's say 85% of fortran developers are `odd`.
-					<li> \( P(fortran\enspace developer) \): Most developers are average and use react. Only 1% of
+					<li> \(P(odd\, given\, fortran\, developer)\): Let's say 85% of fortran developers are `odd`.
+					<li> \( P(fortran\, developer) \): Most developers are average and use react. Only 1% of
 					  all developers use Fortran.
 					<li> \(P(odd)\): Across the whole company, you estimate that 10% of developers are `odd`.
 					</ul>
@@ -197,6 +237,8 @@
 					And the answer is 0.085, or 8.5%.
 
 				</section>
+
+
 				<section>
 					<section>
 						<svg id="svg1" height="400" width="400"></svg>
@@ -241,43 +283,99 @@
 					</section>
 					<section>
 						
-						<svg id="svg3" height="400" width="400"></svg>
+						<svg id="svg3" height="400" width="420"></svg>
 						<script>
-							(function(){
+							
 							const svg3 = document.getElementById('svg3')
 
-							for (var i = 0; i < 990; i++) {
-								const circle = document.createElementNS(NS, "circle");
-								let color;
-								if (i < 9 || Math.random() < 0.13) {
-									color = "rgb(40, 40, 240)"
-								} else if (i == 9) {
-									color = "rgb(240, 128, 128)"
-								} else {
-									color = "rgb(128, 128, 128)"
+							let fortOdds = [];
+							let reactOdds = [];
+							numSteps = 50;
+							moveSteps = numSteps;
+
+							function draw3(svg3) { 
+								for (var i = 0; i < 990; i++) {
+									const circle = document.createElementNS(NS, "circle");
+									let color;
+									if (i < 9 || Math.random() < 0.13) {
+										if (i < 9) {
+											fortOdds.push(circle)
+											circle.setAttribute("cxi", r + r + r + (i % 33) * (2 * r + 2))
+											circle.setAttribute("cxt", r)
+											circle.setAttribute("cyi", r + Math.floor(i / 33) * (2 * r + 2))
+											circle.setAttribute("cyt", r + (i % 33) * (2 * r + 2))
+										} else {
+											reactOdds.push(circle)
+											circle.setAttribute("cxi", r + r + r + (i % 33) * (2 * r + 2))
+											circle.setAttribute("cxt", 400 - r)
+										}
+										color = "rgb(40, 40, 240)"
+									} else if (i == 9) {
+										color = "rgb(240, 128, 128)"
+									} else {
+										color = "rgb(128, 128, 128)"
+									}
+
+									circle.setAttribute("cx", r + r + r + (i % 33) * (2 * r + 2))
+									circle.setAttribute("cy", r + Math.floor(i / 33) * (2 * r + 2))
+									circle.setAttribute("r", r)
+									circle.setAttribute("fill", color)
+									svg3.appendChild(circle)
+
+								}
+							}
+
+							draw3(svg3)
+
+							function tween(i, t, init, targ) {
+								return (1 - i / t) * init + (i / t) * targ
+							}
+
+							function moveOddCircles() {
+
+								moveSteps--
+								console.log(moveSteps)
+
+								for (let i = 0; i < fortOdds.length; i++) {
+									if (i == 0) {
+										console.log(i, fortOdds.length, fortOdds[i].getAttribute('cxi'), fortOdds[i].getAttribute('cxt'))
+									}
+									fortOdds[i].setAttribute("cx", tween(i, moveSteps, fortOdds[i].getAttribute('cxi'), fortOdds[i].getAttribute('cxt')))
+									// fortOdds[i].setAttribute("cx", Math.floor(Math.random() * 300))
+									fortOdds[i].setAttribute("cy", tween(i, moveSteps, fortOdds[i].getAttribute('cyi'), fortOdds[i].getAttribute('cyt')))
 								}
 
-								circle.setAttribute("cx", r + (i % 33) * (2 * r + 2))
-								circle.setAttribute("cy", r + Math.floor(i / 33) * (2 * r + 2))
-								circle.setAttribute("r", r)
-								circle.setAttribute("fill", color)
-								svg3.appendChild(circle)
-
+								if (moveSteps > 0) {
+									setTimeout(() => requestAnimationFrame(moveOddCircles), 33)
+								}
 							}
-							})()
+							
 						</script>
 						
-						<div class="fragment" id="bens-element">
+						<!--div class="fragment" id="bens-element">
 
-							test
-							<script>
-							console.log('Ben element')
-							Reveal.addEventListener( 'fragmentshown', function( event ) {
-								console.log(event.fragment)
-							} )
-							</script>
-						</div>
+							
+						</div-->
 					</section>
+				</section>
+				<section>
+					<table>
+							<tr>
+									<td></td>
+									<td>Fortran (1%)</td>
+									<td>React (99%)</td>
+							</tr>
+							<tr>
+									<td>Odd</td>
+									<td><span class="tp">0.9% (true positive)</span></td>
+									<td><span class="fp">9.1% (false positive)</span></td>
+							</tr>
+							<tr>
+									<td>Not Odd</td>
+									<td><span class="fp">0.1% (false negative)</span></td>
+									<td><span class="tp">89.9% (true negative)</span></td>
+							</tr>
+					</table>
 				</section>
 				<section><h3>Learning With Bayes</h3></section>
 				<section data-markdown="news-1.md" class="table"></section>
@@ -322,11 +420,11 @@
 				<section>
 					<section>
 						<h5>in general</h5>
-						$$P(sports|words) = \frac{(product\enspace of\enspace each\enspace P(word|sports)) P(sports)}{(product\enspace of\enspace each\enspace P(word))}$$
+						$$P(sports|words) = \frac{(product\, of\, each\, P(word|sports)) P(sports)}{(product\, of\, each\, P(word))}$$
 					</section>
 					<section>
 						<h5>or in math notation...</h5>
-						$$P(sports|words) = \frac{(\prod P(word|label)) P(label)}{(\prod P(word))}$$
+						$$P(label|words) = \frac{\prod P(word|label) P(label)}{\prod P(word)}$$
 					</section>
 				</section>
 				<section data-markdown>
@@ -340,6 +438,11 @@
 					#### pseudocode
 
 					We will take the logarithm of each learned probability and add them.
+				</section>
+				<section data-markdown>
+					### pseudocode
+
+					Because we're using logarithms, we need a non-zero default count.
 				</section>
 				<section data-markdown>
 					#### pseudocode
@@ -383,10 +486,20 @@
 					```
 				</section>
 				<section data-markdown>
-						## demo
+					## demo
 				</section>
-				<section data-markdown>
+				<section>
+					<h3> comparison</h3>
+					<ul>
+						<li class="fragment">great for online learning</li>
+						<li class="fragment">trains very fast</li>
+						<li class="fragment">not much room for tuning</li>
+						<li class="fragment">great for use with constrained resources</li>
+						<li class="fragment">poor choice if you need state-of-the-art accuracy</li>
+					</ul>
 				</section>
+			<section>
+		</section>
 							<!--section>
 					<iframe src=2.html style="width:600px;height:600px"></iframe>
 				</section-->
@@ -411,6 +524,16 @@
 					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
 				]
 			});
+		</script>
+		<script>
+			console.log('Ben element')
+			Reveal.addEventListener( 'fragmentshown', function( event ) {
+				if (event.fragment.getAttribute('id') == 'bens-element') {
+					console.log('you got it')
+					moveOddCircles();
+				}
+
+			} )
 		</script>
 	</body>
 </html>

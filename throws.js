@@ -55,6 +55,7 @@ let draw = () => {
         drawHor(h * above / total)
     }
     drawFirst()
+    document.getElementById('num-throws').innerText = total
 }
 
 let drop = () => {

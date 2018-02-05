@@ -1,6 +1,6 @@
 ### learning news
 
-| text                                 | classification |
+| text                                 | section |
 |--------------------------------------|----------------|
 | Local Team Loses Game                | sports         |
 | Player Loses Game                    | sports         |

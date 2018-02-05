@@ -1,4 +1,3 @@
-
 function Bayes() {
   this.features = {}
   this.categories = {}
@@ -15,11 +14,11 @@ Bayes.prototype.getScore = function(category, features) {
 }
 
 Bayes.prototype.getPrior = function(category) {
-  return (this.categories[category] || 0.1) / this.totalDocuments
+  return (this.categories[category] || 1) / this.totalDocuments
 }
 
 Bayes.prototype.getProbability = function(feature, category) {
-  return (this.features[category][feature] || 0.1) / this.categories[category]
+  return (this.features[category][feature] || 1) / this.categories[category]
 }
 
 Bayes.prototype.classify = function(features) {

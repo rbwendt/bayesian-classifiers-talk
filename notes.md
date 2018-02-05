@@ -1,8 +1,8 @@
 # Intro to Bayesian Classifiers
 
 Bayes' theorem is a way of determining the likelihood of an event A given that
-another event B has occurred. It's a way of making an educated guess without
-much information to go on.
+another event B has occurred. It's a way of making an educated guess,
+possibly without much information to go on.
 
 It's a way of going from knowing the likelihood of
 evidence, given a known outcome to knowing the likelihood of a known outcome
@@ -396,3 +396,4 @@ https://www.youtube.com/watch?v=EbyUsf_jUjk
 https://blogs.scientificamerican.com/cross-check/bayes-s-theorem-what-s-the-big-deal/
 http://my.ilstu.edu/~gcramsey/StatOtherPro.html joke #92
 https://stats.stackexchange.com/questions/22/bayesian-and-frequentist-reasoning-in-plain-english
+https://betterexplained.com/articles/an-intuitive-and-short-explanation-of-bayes-theorem/
